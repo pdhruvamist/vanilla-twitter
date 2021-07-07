@@ -1,0 +1,117 @@
+openapi: 3.0.1
+info:
+  title: Vanilla Twitter
+  description: Vanilla Twitter APIs
+  version: 1.0.0
+servers:
+  - url: /v1
+
+paths:
+  /login:
+    post:
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: user login is success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '500':
+          description: user login failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+#    post:
+  /tweets:
+    post:
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+           schema:
+            $ref: '#/components/schemas/TweetMessageRequest'
+      responses:
+        '200':
+          description: tweet posting is success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetMessageResponse'
+#    get:
+#    put:
+#    delete:
+
+components:
+  securitySchemes:
+    BearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        password:
+          type: string
+          format: password
+      required:
+      - userId
+      - password
+    LoginResponse:
+      type: object
+      properties:
+        jwtToken:
+          type: string
+          format: base64
+      required:
+      - jwtToken
+    TweetMessageRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        jwtToken:
+          type: string
+          format: base64
+        message:
+          type: string
+          minLength: 10
+          maxLength: 164
+      required:
+      - userId
+      - jwtToken
+      - message
+    TweetMessageResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        tweetId:
+          type: string
+      required:
+      - userId
+      - tweetId
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+      required:
+      - code
+      - message
