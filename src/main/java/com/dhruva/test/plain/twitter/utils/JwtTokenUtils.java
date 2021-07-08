@@ -1,6 +1,6 @@
 package com.dhruva.test.plain.twitter.utils;
 
-import com.dhruva.test.plain.twitter.model.LoginUserDetails;
+import com.dhruva.test.plain.twitter.model.User;
 import io.jsonwebtoken.*;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class JwtTokenUtils {
 
 
     public static String generateJwtToken(Authentication authentication) {
-        LoginUserDetails loginUserDetails = (LoginUserDetails) authentication.getPrincipal();
+        User loginUserDetails = (User) authentication.getPrincipal();
 
         return Jwts.builder()
                    .setSubject(loginUserDetails.getUsername())

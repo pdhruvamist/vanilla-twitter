@@ -1,56 +1,54 @@
 package com.dhruva.test.plain.twitter.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.experimental.SuperBuilder;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
+import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Collection;
 
-@Component
-@SuperBuilder
-public class LoginUserDetails implements UserDetails {
+@Entity
+@Data
+public class User implements UserDetails, Serializable {
 
-    private Collection<? extends GrantedAuthority> authorities;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @JsonIgnore
+    @Column
+    private String userId;
+
+    @Column
     private String password;
-    private String userName;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return null;
     }
 
     @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername()
-    {
-        return userName;
+    public String getUsername() {
+        return this.userId;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return false;
     }
 }

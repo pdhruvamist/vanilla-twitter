@@ -207,6 +207,30 @@
                     </execution>
                 </executions>
             </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>com.spotify</groupId>-->
+<!--                <artifactId>docker-maven-plugin</artifactId>-->
+<!--                <version>0.4.13</version>-->
+<!--                <configuration>-->
+<!--                    <imageName>${env.docker_registry_host}/${project.artifactId}</imageName>-->
+<!--                    <dockerDirectory>src/main/docker</dockerDirectory>-->
+<!--                    <useConfigFile>true</useConfigFile>-->
+<!--                    <registryUrl>${env.docker_registry_host}</registryUrl>-->
+<!--                    &lt;!&ndash;dockerHost>https://${docker.registry.host}</dockerHost&ndash;&gt;-->
+<!--                    <resources>-->
+<!--                        <resource>-->
+<!--                            <targetPath>/</targetPath>-->
+<!--                            <directory>${project.build.directory}</directory>-->
+<!--                            <include>${project.build.finalName}.jar</include>-->
+<!--                        </resource>-->
+<!--                    </resources>-->
+<!--                    <forceTags>false</forceTags>-->
+<!--                    <imageTags>-->
+<!--                        <imageTag>${project.version}</imageTag>-->
+<!--                    </imageTags>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

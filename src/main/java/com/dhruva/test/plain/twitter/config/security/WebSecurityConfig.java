@@ -1,8 +1,7 @@
-package com.dhruva.test.plain.twitter.security;
+package com.dhruva.test.plain.twitter.config.security;
 
-import com.dhruva.test.plain.twitter.config.JwtTokenFilter;
 import com.dhruva.test.plain.twitter.repository.UserRepository;
-import com.dhruva.test.plain.twitter.service.LoginUserDetailsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -13,12 +12,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletResponse;
 
+import static java.lang.String.format;
+
+@Slf4j
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
 //        // securedEnabled = true,
@@ -26,15 +29,13 @@ import javax.servlet.http.HttpServletResponse;
         prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-
     @Autowired
-    private final LoginUserDetailsService loginUserDetailsService;
-
+    private final UserRepository userRepository;
     @Autowired
     private final JwtTokenFilter jwtTokenFilter;
 
-    public WebSecurityConfig(UserRepository userRepository, LoginUserDetailsService loginUserDetailsService, JwtTokenFilter jwtTokenFilter) {
-        this.loginUserDetailsService = loginUserDetailsService;
+    public WebSecurityConfig(UserRepository userRepository, JwtTokenFilter jwtTokenFilter) {
+        this.userRepository = userRepository;
         this.jwtTokenFilter = jwtTokenFilter;
     }
 
@@ -51,16 +52,31 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(loginUserDetailsService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userId -> userRepository
+                .findByUserId(userId)
+                .orElseThrow(
+                        () -> new UsernameNotFoundException(
+                                format("User: %s, not found", userId)
+                        )
+                ))
+                .passwordEncoder(passwordEncoder());
 
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-            .authorizeRequests().antMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
-            .anyRequest().authenticated().and()
-            .exceptionHandling().authenticationEntryPoint(
+        http.cors()
+            .and()
+            .csrf()
+            .disable()
+            .authorizeRequests()
+            .antMatchers(HttpMethod.POST, "/api/v1/login")
+            .permitAll()
+            .anyRequest()
+            .authenticated()
+            .and()
+            .exceptionHandling()
+            .authenticationEntryPoint(
                     (request, response, ex) -> {
                         response.sendError(
                                 HttpServletResponse.SC_UNAUTHORIZED,
@@ -68,7 +84,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         );
                     })
             .and()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }

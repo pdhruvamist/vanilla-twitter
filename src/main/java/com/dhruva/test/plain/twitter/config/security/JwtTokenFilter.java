@@ -1,6 +1,6 @@
-package com.dhruva.test.plain.twitter.config;
+package com.dhruva.test.plain.twitter.config.security;
 
-import com.dhruva.test.plain.twitter.service.LoginUserDetailsService;
+import com.dhruva.test.plain.twitter.repository.UserRepository;
 import com.dhruva.test.plain.twitter.utils.JwtTokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,11 +26,10 @@ import static org.springframework.util.StringUtils.hasText;
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Autowired
-    private final LoginUserDetailsService loginUserDetailsService;
+    private final UserRepository userRepository;
 
-    public JwtTokenFilter(LoginUserDetailsService loginUserDetailsService) {
-      
-        this.loginUserDetailsService = loginUserDetailsService;
+    public JwtTokenFilter(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
 
@@ -41,9 +41,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         try {
             String jwt = parseJwt(request);
             if (jwt != null && JwtTokenUtils.validateJwtToken(jwt)) {
-                String username = JwtTokenUtils.getUserIdFromJwtToken(jwt);
+                String userId = JwtTokenUtils.getUserIdFromJwtToken(jwt);
 
-                UserDetails userDetails = loginUserDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userRepository.findByUserId(userId)
+                                                        .orElseThrow(() -> new UsernameNotFoundException("Invalid userId supplied."));
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
