@@ -70,5 +70,6 @@ characters
 
 **References**
 
-1. Our project source code: https://github.com/pdhruvamist/vanilla-twitter 
-2. Our docker project image: https://hub.docker.com/r/dhruvamist/vanilla-twitter-aws
+1. Initial HLD : https://excalidraw.com/#json=5758701684129792,3AnWqe1ODlvxTtuvPMq6rw 
+2. Our project source code: https://github.com/pdhruvamist/vanilla-twitter 
+3. Our docker project image: https://hub.docker.com/r/dhruvamist/vanilla-twitter-aws
