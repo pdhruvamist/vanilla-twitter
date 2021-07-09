@@ -5,4 +5,4 @@ ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} vanilla-twitter.jar
 
 EXPOSE 3306 8888
-ENTRYPOINT ["java","-jar","/vanilla-twitter.jar"]
+CMD ["java","-jar","/vanilla-twitter.jar"]
